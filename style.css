@@ -1,0 +1,12 @@
+.item{
+    width: 80%;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: beige;
+    display: flex;
+    justify-content: space-between;
+    padding:0.5em 1em;
+}
+.clickable{
+    cursor: pointer;
+}
