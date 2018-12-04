@@ -1,3 +1,17 @@
+class Header extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        return (
+            <div className="header">
+                <img className="logo" src="./img/logo.png" />
+                <span className="app-name">MyChecklist <img src="./img/check-mark.png" /></span>
+            </div>
+        )
+    }
+}
+
 class TodoItem extends React.Component {
     constructor(props) {
         super(props);
@@ -38,12 +52,16 @@ class CheckedItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isErased: false
+            isErased: false,
+            isChecked: true
         }
         this.erase = this.erase.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
     handleChange() {
+        this.setState({
+            isChecked: false
+        })
         var that = this;
         setTimeout(function () {
             that.props.uncheck(that.props.text)
@@ -58,10 +76,10 @@ class CheckedItem extends React.Component {
         if (this.state.isErased) {
             return false;
         } else {
+            var isChecked = this.state.isChecked ? "checked" : "";
             return (
                 <li className="item">
-                    <input type="checkbox" onChange={this.handleChange} />
-
+                    <input type="checkbox" onChange={this.handleChange} checked={isChecked} />
                     {this.props.text}
                     <img className="clickable" src="./img/trash.png" title="Erase" onClick={this.erase} />
                 </li>
@@ -101,7 +119,6 @@ class App extends React.Component {
         });
     }
     moveBack(item) {
-        console.log("I'm inside the moveBack function ant the item is: " + item);
         var temp_todo_list = this.state.todo_list;
         var temp_items_checked = this.state.items_checked;
         var item_to_move_back = temp_items_checked.splice(temp_items_checked.indexOf(item), 1);
@@ -113,19 +130,22 @@ class App extends React.Component {
     }
     render() {
         var todo_items = this.state.todo_list.map((item) => <TodoItem key={item} text={item} check={this.moveToChecked} />)
-        var checked_items = this.state.items_checked.map((item) => <CheckedItem key={item} text={item} uncheck={this.moveBack}/>)
+        var checked_items = this.state.items_checked.map((item) => <CheckedItem key={item} text={item} uncheck={this.moveBack} />)
         return (
             <div>
-                <input ref={(input) => { this.inputText = input }} type="text" />
-                <button onClick={this.addItem}>Add</button>
-                <div> To Do: </div>
-                <ul>
-                    {todo_items}
-                </ul>
-                <div> Checked: </div>
-                <ul>
-                    {checked_items}
-                </ul>
+                <Header />
+                <div className="main-container">
+                    <input ref={(input) => { this.inputText = input }} type="text" />
+                    <button onClick={this.addItem}>Add</button>
+                    <div> To Do: </div>
+                    <ul>
+                        {todo_items}
+                    </ul>
+                    <div> Checked: </div>
+                    <ul>
+                        {checked_items}
+                    </ul>
+                </div>
             </div>
         );
     }
