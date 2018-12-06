@@ -18,11 +18,12 @@ class Item extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isErased: false
+            isMenuOpen: false
         }
         this.handleChange = this.handleChange.bind(this);
         this.star = this.star.bind(this);
         this.handleErase = this.handleErase.bind(this);
+        this.openMenu = this.openMenu.bind(this);
     }
     handleChange(e) {
         e.preventDefault();
@@ -41,6 +42,11 @@ class Item extends React.Component {
     handleErase() {
         this.props.erase(this.props.text);
     }
+    openMenu() {
+        this.setState({
+            isMenuOpen : true
+        })
+    }
     render() {
         console.log(this.props.isStar);
         if (typeof this.props.isStar !== "undefined") {
@@ -48,20 +54,42 @@ class Item extends React.Component {
             var star = <img className="clickable icon" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
         }
         return (
-            <li className="item">
-                <label>
-                    <input type="checkbox" className="check" onChange={this.handleChange} checked={this.props.isChecked} />
-                    {this.props.text}
-                </label>
-                <span>
-                    {star}
-                    <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
-                    <img className="clickable icon" src="./img/menu.png" title="More Options" />
-                </span>
-            </li>
+            <div>
+                <li className="item">
+                    <label>
+                        <input type="checkbox" className="check" onChange={this.handleChange} checked={this.props.isChecked} />
+                        {this.props.text}
+                    </label>
+                    <span>
+                        {star}
+                        <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
+                        <img className="clickable icon" src="./img/menu.png" title="More Options" onClick={this.openMenu}/>
+                    </span>
+                </li>
+                < MenuDropdown isOpen={this.state.isMenuOpen}/>
+            </div>
         );
     }
 
+}
+
+class MenuDropdown extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        var visibility = this.props.isOpen ? "visible" : "";
+        return (
+            <div className={`dropdown-menu ${visibility}`}>
+                <form>
+                    <span>Description:</span>
+                    <input></input>
+                    <span>Due date:</span>
+                    <input></input>
+                </form>
+            </div>
+        )
+    }
 }
 
 

@@ -86,5 +86,12 @@ button{
     transform: rotate(-12deg);
     font-weight: bold;
 }
+.dropdown-menu{
+    display: none;
+    background-color: beige;
+}
+.visible {
+    display: block;
+}
 
 
