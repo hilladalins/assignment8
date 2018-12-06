@@ -20,6 +20,18 @@ body::after{
 button{
     font-family: 'Poppins', sans-serif;
 }
+.add-button{
+    border-radius: 10px;
+}
+.main-container{
+    position: absolute;
+    top: 15%;
+    padding: 15px;
+    width: 90%;
+}
+.list{
+    padding: 0;
+}
 .item{
     width: 80%;
     border: 1px solid black;
@@ -28,10 +40,24 @@ button{
     display: flex;
     justify-content: space-between;
     padding:0.5em 1em;
+    opacity: 0;
+    animation: new-item-animation .3s ease forwards;
+}
+
+@keyframes new-item-animation {
+    from {
+        opacity: 0;
+        transform: scale(0);
+}
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 .clickable{
     cursor: pointer;
 }
+
 .header{
     position: fixed;
     top:0;
@@ -52,8 +78,5 @@ button{
     transform: rotate(-12deg);
     font-weight: bold;
 }
-.main-container{
-    position: absolute;
-    top: 15%;
-    padding: 15px;
-}
+
+
