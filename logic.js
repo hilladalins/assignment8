@@ -24,7 +24,8 @@ class Item extends React.Component {
         this.star = this.star.bind(this);
         this.handleErase = this.handleErase.bind(this);
     }
-    handleChange() {
+    handleChange(e) {
+        e.preventDefault();
         if (this.props.type === "todo_list") {
             this.props.check(this.props.text)
         } else {
@@ -44,7 +45,7 @@ class Item extends React.Component {
         console.log(this.props.isStar);
         if (typeof this.props.isStar !== "undefined") {
             var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
-            var star = <img className="clickable" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
+            var star = <img className="clickable icon" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
         }
         return (
             <li className="item">
@@ -54,7 +55,8 @@ class Item extends React.Component {
                 </label>
                 <span>
                     {star}
-                    <img className="clickable" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
+                    <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
+                    <img className="clickable icon" src="./img/menu.png" title="More Options" />
                 </span>
             </li>
         );
@@ -173,11 +175,11 @@ class App extends React.Component {
                 <div className="main-container">
                     <input ref={(input) => { this.inputText = input }} onKeyPress={this.handleKeyPress} type="text" placeholder="Enter your todo" />
                     <button className="add-button" onClick={this.addItem} >+</button>
-                    <div> To Do: </div>
+                    <h3 className="title"> To Do: </h3>
                     <ul className="list">
                         {todo_items}
                     </ul>
-                    <div> Checked: </div>
+                    <h3 className="title"> Checked: </h3>
                     <ul className="list">
                         {checked_items}
                     </ul>

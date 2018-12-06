@@ -27,7 +27,13 @@ button{
     position: absolute;
     top: 15%;
     padding: 15px;
-    width: 90%;
+    width: 95%;
+}
+.title{
+    width: 30%;
+    background-color: rgba(247, 247, 247, 0.959);
+    border-radius: 10px;
+    padding: 10px;
 }
 .list{
     padding: 0;
@@ -57,7 +63,9 @@ button{
 .clickable{
     cursor: pointer;
 }
-
+.icon{
+    margin: 0 4px;
+}
 .header{
     position: fixed;
     top:0;
