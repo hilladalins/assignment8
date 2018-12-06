@@ -14,7 +14,7 @@ class Header extends React.Component {
     }
 }
 
-class TodoItem extends React.Component {
+class Item extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -25,10 +25,11 @@ class TodoItem extends React.Component {
         this.handleErase = this.handleErase.bind(this);
     }
     handleChange() {
-        var that = this;
-        setTimeout(function () {
-            that.props.check(that.props.text)
-        }, 300);
+        if (this.props.type === "todo_list") {
+            this.props.check(this.props.text)
+        } else {
+            this.props.uncheck(this.props.text)
+        }
     }
     star() {
         var that = this;
@@ -40,62 +41,27 @@ class TodoItem extends React.Component {
         this.props.erase(this.props.text);
     }
     render() {
-        var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
-        if (this.state.isErased) {
-            return false;
-        } else {
-            return (
-                <li className="item">
-                    <label>
-                        <input type="checkbox" className="check" onChange={this.handleChange} />
-                        {this.props.text}
-                    </label>
-                    <span>
-                        <img className="clickable" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
-                        <img className="clickable" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
-                    </span>
-                </li>
-            );
+        console.log(this.props.isStar);
+        if (typeof this.props.isStar !== "undefined") {
+            var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
+            var star = <img className="clickable" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
         }
-
-    }
-}
-
-class CheckedItem extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isErased: false,
-            isChecked: true
-        }
-        this.handleChange = this.handleChange.bind(this);
-        this.handleErase = this.handleErase.bind(this);
-    }
-    handleChange() {
-        var that = this;
-        setTimeout(function () {
-            that.props.uncheck(that.props.text)
-        }, 300);
-    }
-    handleErase() {
-        this.props.erase(this.props.text);
-    }
-    render() {
-        if (this.state.isErased) {
-            return false;
-        } else {
-            return (
-                <li className="item">
-                    <label>
-                        <input type="checkbox" onChange={this.handleChange} />
-                        {this.props.text}
-                    </label>
+        return (
+            <li className="item">
+                <label>
+                    <input type="checkbox" className="check" onChange={this.handleChange} checked={this.props.isChecked} />
+                    {this.props.text}
+                </label>
+                <span>
+                    {star}
                     <img className="clickable" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
-                </li>
-            );
-        }
+                </span>
+            </li>
+        );
     }
+
 }
+
 
 class App extends React.Component {
     constructor() {
@@ -120,8 +86,8 @@ class App extends React.Component {
     addItem() {
         var temp_todo_list = this.state.todo_list;
         var item = {
-            text : this.inputText.value,
-            isStar : false
+            text: this.inputText.value,
+            isStar: false
         }
         temp_todo_list.push(item);
         this.setState({
@@ -133,11 +99,12 @@ class App extends React.Component {
         var temp_todo_list = this.state.todo_list;
         var temp_items_checked = this.state.items_checked;
         var item_checked = null;
-        for (var i=0 ;i<temp_todo_list.length; i++ ){
-            if (item === temp_todo_list[i].text){
+        for (var i = 0; i < temp_todo_list.length; i++) {
+            if (item === temp_todo_list[i].text) {
                 item_checked = temp_todo_list.splice(i, 1);
             }
         }
+        item_checked[0].isStar = false;
         temp_items_checked.push(item_checked[0]);
         this.setState({
             todo_list: temp_todo_list,
@@ -148,8 +115,8 @@ class App extends React.Component {
         var temp_todo_list = this.state.todo_list;
         var temp_items_checked = this.state.items_checked;
         var item_to_move_back = null;
-        for (var i=0 ;i<temp_items_checked.length; i++ ){
-            if (item === temp_items_checked[i].text){
+        for (var i = 0; i < temp_items_checked.length; i++) {
+            if (item === temp_items_checked[i].text) {
                 item_to_move_back = temp_items_checked.splice(i, 1);
             }
         }
@@ -162,8 +129,8 @@ class App extends React.Component {
     moveToTheTop(item) {
         var temp_todo_list = this.state.todo_list;
         var item_to_move_top = null;
-        for (var i=0 ;i<temp_todo_list.length; i++ ){
-            if (item === temp_todo_list[i].text){
+        for (var i = 0; i < temp_todo_list.length; i++) {
+            if (item === temp_todo_list[i].text) {
                 item_to_move_top = temp_todo_list.splice(i, 1);
             }
         }
@@ -176,16 +143,16 @@ class App extends React.Component {
     delete(item) {
         var temp_todo_list = this.state.todo_list;
         var temp_items_checked = this.state.items_checked;
-        for (var i=0 ;i<temp_todo_list.length; i++ ){
-            if (item === temp_todo_list[i].text){
+        for (var i = 0; i < temp_todo_list.length; i++) {
+            if (item === temp_todo_list[i].text) {
                 temp_todo_list.splice(i, 1);
                 this.setState({
                     todo_list: temp_todo_list,
                 });
             }
         }
-        for (var i=0 ;i<temp_items_checked.length; i++ ){
-            if (item === temp_items_checked[i].text){
+        for (var i = 0; i < temp_items_checked.length; i++) {
+            if (item === temp_items_checked[i].text) {
                 temp_items_checked.splice(i, 1);
                 this.setState({
                     item_checked: temp_items_checked
@@ -194,12 +161,12 @@ class App extends React.Component {
         }
     }
     componentDidUpdate() {
-        LocalStorageUtility.storeItem("todo_list",this.state.todo_list);
-        LocalStorageUtility.storeItem("items_checked",this.state.items_checked);
+        LocalStorageUtility.storeItem("todo_list", this.state.todo_list);
+        LocalStorageUtility.storeItem("items_checked", this.state.items_checked);
     }
     render() {
-        var todo_items = this.state.todo_list.map((item, i) => <TodoItem key={i} text={item.text} check={this.moveToChecked} star={this.moveToTheTop} isStar={item.isStar} erase={this.delete}/>)
-        var checked_items = this.state.items_checked.map((item, i) => <CheckedItem key={i} text={item.text} uncheck={this.moveBack} erase={this.delte}/>)
+        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} check={this.moveToChecked} star={this.moveToTheTop} isStar={item.isStar} erase={this.delete} />)
+        var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
         return (
             <div>
                 <Header />
