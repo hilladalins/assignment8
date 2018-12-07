@@ -87,6 +87,9 @@ button{
 .clickable{
     cursor: pointer;
 }
+.disable{
+    pointer-events: none;
+}
 .icon{
     margin: 0 4px;
 }
@@ -133,9 +136,6 @@ button{
     height: 5.4vh;
     padding-top: 0;
 }
-
-
-
 .form-desc:placeholder-shown{
     position:relative;
 }

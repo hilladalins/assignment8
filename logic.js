@@ -35,7 +35,7 @@ class Item extends React.Component {
         }
     }
     star() {
-        if (this.props.isStar === false){
+        if (this.props.isStar === false) {
             this.props.star(this.props.text);
         } else {
             this.props.unstar(this.props.text)
@@ -47,22 +47,27 @@ class Item extends React.Component {
     openMenu() {
         if (this.state.isMenuOpen) {
             this.setState({
-                isMenuOpen : false
+                isMenuOpen: false
             })
         } else {
             this.setState({
-                isMenuOpen : true
+                isMenuOpen: true
             })
         }
+        this.props.disabledMenus();
     }
-    chainSubmit(desc,date){
-        this.props.transferDetailes(desc,date,this.props.text);
+    chainSubmit(desc, date) {
+        this.props.transferDetailes(desc, date, this.props.text);
     }
     render() {
         if (typeof this.props.isStar !== "undefined") {
             var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
             var star = <img className="clickable icon" src={starImg} title="Mark as Important" onClick={this.star} />
         }
+        if (typeof this.props.isMenuDisabled !== "undefined"){
+            var menu =  <img className={`clickable icon ${disabledClass}`} src="./img/menu.png" title="More Options" onClick={this.openMenu}/>
+        }
+        var disabledClass = this.props.isMenuDisabled? "disable" : ""
         return (
             <div>
                 <li className="item">
@@ -76,10 +81,10 @@ class Item extends React.Component {
                     <span>
                         {star}
                         <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
-                        <img className="clickable icon" src="./img/menu.png" title="More Options" onClick={this.openMenu}/>
+                        {menu}
                     </span>
                 </li>
-                < MenuDropdown isOpen={this.state.isMenuOpen} submit={this.chainSubmit}/>
+                < MenuDropdown isOpen={this.state.isMenuOpen} submit={this.chainSubmit} disabled={false} desc={this.props.desc} date={this.props.date}/>
             </div>
         );
     }
@@ -90,21 +95,21 @@ class MenuDropdown extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isOpen : this.props.isOpen
+            isOpen: this.props.isOpen
         }
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     handleSubmit(e) {
         e.preventDefault();
-        this.props.submit(this.inputDesc.value,this.inputDate.value);
+        this.props.submit(this.inputDesc.value, this.inputDate.value);
         this.setState({
-            isOpen : false
+            isOpen: false
         })
     }
     componentWillReceiveProps(newProps) {
-        if (newProps.isOpen !== this.props.isOpen){
+        if (newProps.isOpen !== this.props.isOpen) {
             this.setState({
-                isOpen : newProps.isOpen
+                isOpen: newProps.isOpen
             })
         }
     }
@@ -114,9 +119,9 @@ class MenuDropdown extends React.Component {
             <div className={`dropdown-menu ${visibility}`}>
                 <form className="desc-date-form">
                     <span>Description:</span>
-                    <textarea rows="3" cols="30" ref={(input) => { this.inputDesc = input }} placeholder="Enter your description here"></textarea>
+                    <textarea rows="3" cols="30" ref={(input) => { this.inputDesc = input }} placeholder="Enter your description here" defaultValue={this.props.desc}></textarea>
                     <span>Due date:</span>
-                    <input type="date"  ref={(input) => { this.inputDate = input }}></input><br/>
+                    <input type="date" ref={(input) => { this.inputDate = input }} defaultValue={this.props.date}/><br />
                     <input className="form-btn" type="submit" value="Add" onClick={this.handleSubmit}/>
                 </form>
             </div>
@@ -124,15 +129,14 @@ class MenuDropdown extends React.Component {
     }
 }
 
-
 class App extends React.Component {
     constructor() {
         super();
         this.state = {
             todo_list: LocalStorageUtility.getList("todo_list"),
-            items_checked: LocalStorageUtility.getList("items_checked")
+            items_checked: LocalStorageUtility.getList("items_checked"),
+            isMenusDisabled: false
         }
-        this.counter = 0;
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.addItem = this.addItem.bind(this);
         this.moveToChecked = this.moveToChecked.bind(this);
@@ -140,6 +144,7 @@ class App extends React.Component {
         this.moveToTheTop = this.moveToTheTop.bind(this);
         this.moveToTheBottom = this.moveToTheBottom.bind(this);
         this.delete = this.delete.bind(this);
+        this.disableAllMenus = this.disableAllMenus.bind(this);
         this.addDetailes = this.addDetailes.bind(this);
     }
     handleKeyPress(e) {
@@ -208,7 +213,6 @@ class App extends React.Component {
         });
     }
     moveToTheBottom(item) {
-        console.log ("in the moveToTheBottom function");
         var temp_todo_list = this.state.todo_list;
         var item_to_move_bottom = null;
         for (var i = 0; i < temp_todo_list.length; i++) {
@@ -244,8 +248,12 @@ class App extends React.Component {
             }
         }
     }
-    addDetailes(desc,date,item) {
-        // console.log("inside the addDEtailes function in the App");
+    disableAllMenus(){
+        this.setState({
+            isMenusDisabled : true
+        })
+    }
+    addDetailes(desc, date, item) {
         var temp_todo_list = this.state.todo_list;
         for (var i = 0; i < temp_todo_list.length; i++) {
             if (item === temp_todo_list[i].text) {
@@ -255,7 +263,8 @@ class App extends React.Component {
             }
         }
         this.setState({
-            todo_list: temp_todo_list,
+            isMenusDisabled : false,            
+            todo_list: temp_todo_list
         });
     }
     componentDidUpdate() {
@@ -263,7 +272,7 @@ class App extends React.Component {
         LocalStorageUtility.storeItem("items_checked", this.state.items_checked);
     }
     render() {
-        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} star={this.moveToTheTop} unstar={this.moveToTheBottom} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes}/>)
+        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} isMenuDisabled={this.state.isMenusDisabled} disabledMenus={this.disableAllMenus} star={this.moveToTheTop} unstar={this.moveToTheBottom} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes} />)
         var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} desc={item.desc} date={item.date} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
         return (
             <div>
