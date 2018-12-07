@@ -24,6 +24,7 @@ class Item extends React.Component {
         this.star = this.star.bind(this);
         this.handleErase = this.handleErase.bind(this);
         this.openMenu = this.openMenu.bind(this);
+        this.chainSubmit = this.chainSubmit.bind(this);
     }
     handleChange(e) {
         e.preventDefault();
@@ -43,22 +44,33 @@ class Item extends React.Component {
         this.props.erase(this.props.text);
     }
     openMenu() {
-        this.setState({
-            isMenuOpen : true
-        })
+        if (this.state.isMenuOpen) {
+            this.setState({
+                isMenuOpen : false
+            })
+        } else {
+            this.setState({
+                isMenuOpen : true
+            })
+        }
+    }
+    chainSubmit(desc,date){
+        this.props.transferDetailes(desc,date,this.props.text);
     }
     render() {
-        console.log(this.props.isStar);
         if (typeof this.props.isStar !== "undefined") {
             var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
-            var star = <img className="clickable icon" ref={(img) => { this.starImg = img }} src={starImg} title="Mark as Important" onClick={this.star} />
+            var star = <img className="clickable icon" src={starImg} title="Mark as Important" onClick={this.star} />
         }
         return (
             <div>
                 <li className="item">
-                    <label>
-                        <input type="checkbox" className="check" onChange={this.handleChange} checked={this.props.isChecked} />
-                        {this.props.text}
+                    <label className="container">
+                        <input type="checkbox" onChange={this.handleChange} checked={this.props.isChecked} />
+                        <span className="checkmark"></span>
+                        <p className="todo-title">{this.props.text}</p>
+                        <p className="desc">{this.props.desc}</p>
+                        <p className="date">{this.props.date}</p>
                     </label>
                     <span>
                         {star}
@@ -66,7 +78,7 @@ class Item extends React.Component {
                         <img className="clickable icon" src="./img/menu.png" title="More Options" onClick={this.openMenu}/>
                     </span>
                 </li>
-                < MenuDropdown isOpen={this.state.isMenuOpen}/>
+                < MenuDropdown isOpen={this.state.isMenuOpen} submit={this.chainSubmit}/>
             </div>
         );
     }
@@ -76,16 +88,35 @@ class Item extends React.Component {
 class MenuDropdown extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            isOpen : this.props.isOpen
+        }
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    handleSubmit(e) {
+        e.preventDefault();
+        this.props.submit(this.inputDesc.value,this.inputDate.value);
+        this.setState({
+            isOpen : false
+        })
+    }
+    componentWillReceiveProps(newProps) {
+        if (newProps.isOpen !== this.props.isOpen){
+            this.setState({
+                isOpen : newProps.isOpen
+            })
+        }
     }
     render() {
-        var visibility = this.props.isOpen ? "visible" : "";
+        var visibility = this.state.isOpen ? "visible" : "";
         return (
             <div className={`dropdown-menu ${visibility}`}>
                 <form>
                     <span>Description:</span>
-                    <input></input>
+                    <input placeholder="Type your description here" ref={(input) => { this.inputDesc = input }}></input><br/>
                     <span>Due date:</span>
-                    <input></input>
+                    <input type="date"  ref={(input) => { this.inputDate = input }}></input><br/>
+                    <input type="submit" value="Add" onClick={this.handleSubmit}/>
                 </form>
             </div>
         )
@@ -107,6 +138,7 @@ class App extends React.Component {
         this.moveBack = this.moveBack.bind(this);
         this.moveToTheTop = this.moveToTheTop.bind(this);
         this.delete = this.delete.bind(this);
+        this.addDetailes = this.addDetailes.bind(this);
     }
     handleKeyPress(e) {
         if (e.which === 13) {
@@ -132,6 +164,7 @@ class App extends React.Component {
         for (var i = 0; i < temp_todo_list.length; i++) {
             if (item === temp_todo_list[i].text) {
                 item_checked = temp_todo_list.splice(i, 1);
+                break;
             }
         }
         item_checked[0].isStar = false;
@@ -148,6 +181,7 @@ class App extends React.Component {
         for (var i = 0; i < temp_items_checked.length; i++) {
             if (item === temp_items_checked[i].text) {
                 item_to_move_back = temp_items_checked.splice(i, 1);
+                break;
             }
         }
         temp_todo_list.push(item_to_move_back[0]);
@@ -162,6 +196,7 @@ class App extends React.Component {
         for (var i = 0; i < temp_todo_list.length; i++) {
             if (item === temp_todo_list[i].text) {
                 item_to_move_top = temp_todo_list.splice(i, 1);
+                break;
             }
         }
         item_to_move_top[0].isStar = true;
@@ -179,6 +214,7 @@ class App extends React.Component {
                 this.setState({
                     todo_list: temp_todo_list,
                 });
+                break;
             }
         }
         for (var i = 0; i < temp_items_checked.length; i++) {
@@ -190,19 +226,33 @@ class App extends React.Component {
             }
         }
     }
+    addDetailes(desc,date,item) {
+        // console.log("inside the addDEtailes function in the App");
+        var temp_todo_list = this.state.todo_list;
+        for (var i = 0; i < temp_todo_list.length; i++) {
+            if (item === temp_todo_list[i].text) {
+                temp_todo_list[i].desc = desc;
+                temp_todo_list[i].date = date;
+                break;
+            }
+        }
+        this.setState({
+            todo_list: temp_todo_list,
+        });
+    }
     componentDidUpdate() {
         LocalStorageUtility.storeItem("todo_list", this.state.todo_list);
         LocalStorageUtility.storeItem("items_checked", this.state.items_checked);
     }
     render() {
-        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} check={this.moveToChecked} star={this.moveToTheTop} isStar={item.isStar} erase={this.delete} />)
-        var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
+        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} star={this.moveToTheTop} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes}/>)
+        var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} desc={item.desc} date={item.date} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
         return (
             <div>
                 <Header />
                 <div className="main-container">
-                    <input ref={(input) => { this.inputText = input }} onKeyPress={this.handleKeyPress} type="text" placeholder="Enter your todo" />
-                    <button className="add-button" onClick={this.addItem} >+</button>
+                    <input className="insert-todo" ref={(input) => { this.inputText = input }} onKeyPress={this.handleKeyPress} type="text" placeholder="Enter your todo" />
+                    <button className="add-button" onClick={this.addItem} >Add</button>
                     <h3 className="title"> To Do: </h3>
                     <ul className="list">
                         {todo_items}

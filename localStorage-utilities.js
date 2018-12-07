@@ -1,4 +1,5 @@
 window.LocalStorageUtility = {};
+
 LocalStorageUtility.storeItem = function (name,list) {
     var parsedItem = JSON.stringify(list);
     localStorage.setItem(name, parsedItem);
