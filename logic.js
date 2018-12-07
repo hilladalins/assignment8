@@ -100,10 +100,9 @@ class Item extends React.Component {
                         <p className="desc">{this.props.desc}</p>
                         <p className="date">{this.props.date}</p>
                     </label>
-                    <div>
+                    <div className="icon-wrap">
                         {menu}
                         {notification}
-
                         {star}
                         <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
                     </div>
@@ -148,7 +147,6 @@ class MenuDropdown extends React.Component {
     render() {
         var visibility = this.state.isOpen ? "visible" : "";
         var date = this.props.date ? DateUtilities.convertToBasicFormat(this.props.date) : null;
-        console.log(date);
         return (
             <div className={`dropdown-menu ${visibility}`}>
                 <form className="desc-date-form">
@@ -316,7 +314,7 @@ class App extends React.Component {
     }
     render() {
         var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} isMenuDisabled={this.state.isMenusDisabled} disabledMenus={this.disableAllMenus} star={this.moveToTheTop} unstar={this.moveToTheBottom} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes} />)
-        var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} desc={item.desc} date={item.date} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
+        var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} desc={item.desc} date={item.date} uncheck={this.moveBack} erase={this.delete} isChecked={true} />)
         return (
             <div>
                 <Header />
