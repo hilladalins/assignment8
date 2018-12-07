@@ -18,13 +18,16 @@ class Item extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isMenuOpen: false
+            isMenuOpen: false,
+            isNotificitionOpen: false
         }
         this.handleChange = this.handleChange.bind(this);
         this.star = this.star.bind(this);
         this.handleErase = this.handleErase.bind(this);
         this.openMenu = this.openMenu.bind(this);
         this.chainSubmit = this.chainSubmit.bind(this);
+        this.openNotification = this.openNotification.bind(this);
+        this.setNotification = this.setNotification.bind(this);
     }
     handleChange(e) {
         e.preventDefault();
@@ -59,17 +62,36 @@ class Item extends React.Component {
     chainSubmit(desc, date) {
         this.props.transferDetailes(desc, date, this.props.text);
     }
+    openNotification() {
+        if (this.state.isNotificitionOpen) {
+            this.setState({
+                isNotificitionOpen: false
+            })
+        } else {
+            this.setState({
+                isNotificitionOpen: true
+            })
+        }
+    }
+    setNotification() {
+        this.setState({
+            isNotificitionOpen: false
+        })
+        DateUtilities.setReminder(this.inputTimeNumber.value, this.inputTimeUnit.value, this.props.text);
+    }
     render() {
         if (typeof this.props.isStar !== "undefined") {
             var starImg = this.props.isStar ? "./img/fullstar.png" : "./img/star.png"
             var star = <img className="clickable icon" src={starImg} title="Mark as Important" onClick={this.star} />
+            var notification = <img className="clickable icon" src="./img/notification.png" title="Remind me" onClick={this.openNotification} />
+            var visibility = this.state.isNotificitionOpen ? "visible" : "";
         }
-        if (typeof this.props.isMenuDisabled !== "undefined"){
-            var menu =  <img className={`clickable icon ${disabledClass}`} src="./img/menu.png" title="More Options" onClick={this.openMenu}/>
+        if (typeof this.props.isMenuDisabled !== "undefined") {
+            var disabledClass = (this.props.isMenuDisabled && !this.state.isMenuOpen) ? "disable" : ""
+            var menu = <img className={`clickable icon ${disabledClass}`} src="./img/menu.png" title="More Options" onClick={this.openMenu} />
         }
-        var disabledClass = this.props.isMenuDisabled? "disable" : ""
         return (
-            <div>
+            <div className="item-wrap">
                 <li className="item">
                     <label className="container">
                         <input type="checkbox" onChange={this.handleChange} checked={this.props.isChecked} />
@@ -78,13 +100,23 @@ class Item extends React.Component {
                         <p className="desc">{this.props.desc}</p>
                         <p className="date">{this.props.date}</p>
                     </label>
-                    <span>
+                    <div>
+                        {menu}
+                        {notification}
+
                         {star}
                         <img className="clickable icon" src="./img/trash.png" title="Erase" onClick={this.handleErase} />
-                        {menu}
-                    </span>
+                    </div>
                 </li>
-                < MenuDropdown isOpen={this.state.isMenuOpen} submit={this.chainSubmit} disabled={false} desc={this.props.desc} date={this.props.date}/>
+                <div className={`notification-menu ${visibility}`}>Remind me in:
+                    <input type="number" min="1" max="59" ref={(input) => { this.inputTimeNumber = input }} />
+                    <select ref={(input) => { this.inputTimeUnit = input }}>
+                        <option name="minutes">minutes</option>
+                        <option name="hours">hours</option>
+                    </select>
+                    <button onClick={this.setNotification}>O.K.</button>
+                </div>
+                < MenuDropdown isOpen={this.state.isMenuOpen} submit={this.chainSubmit} disabled={false} desc={this.props.desc} date={this.props.date} />
             </div>
         );
     }
@@ -115,14 +147,16 @@ class MenuDropdown extends React.Component {
     }
     render() {
         var visibility = this.state.isOpen ? "visible" : "";
+        var date = this.props.date ? DateUtilities.convertToBasicFormat(this.props.date) : null;
+        console.log(date);
         return (
             <div className={`dropdown-menu ${visibility}`}>
                 <form className="desc-date-form">
                     <span>Description:</span>
                     <textarea rows="3" cols="30" ref={(input) => { this.inputDesc = input }} placeholder="Enter your description here" defaultValue={this.props.desc}></textarea>
                     <span>Due date:</span>
-                    <input type="date" ref={(input) => { this.inputDate = input }} defaultValue={this.props.date}/><br />
-                    <input className="form-btn" type="submit" value="Add" onClick={this.handleSubmit}/>
+                    <input type="date" ref={(input) => { this.inputDate = input }} defaultValue={date} /><br />
+                    <input className="form-btn" type="submit" value="Add" onClick={this.handleSubmit} />
                 </form>
             </div>
         )
@@ -153,6 +187,9 @@ class App extends React.Component {
         }
     }
     addItem() {
+        if(this.inputText.value === ""){
+            return;
+        }
         var temp_todo_list = this.state.todo_list;
         var item = {
             text: this.inputText.value,
@@ -248,22 +285,28 @@ class App extends React.Component {
             }
         }
     }
-    disableAllMenus(){
-        this.setState({
-            isMenusDisabled : true
-        })
+    disableAllMenus() {
+        if (this.state.isMenusDisabled) {
+            this.setState({
+                isMenusDisabled: false
+            })
+        } else {
+            this.setState({
+                isMenusDisabled: true
+            })
+        }
     }
     addDetailes(desc, date, item) {
         var temp_todo_list = this.state.todo_list;
         for (var i = 0; i < temp_todo_list.length; i++) {
             if (item === temp_todo_list[i].text) {
                 temp_todo_list[i].desc = desc;
-                temp_todo_list[i].date = date;
+                temp_todo_list[i].date = DateUtilities.arrangeDate(date);
                 break;
             }
         }
         this.setState({
-            isMenusDisabled : false,            
+            isMenusDisabled: false,
             todo_list: temp_todo_list
         });
     }
