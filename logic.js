@@ -35,10 +35,11 @@ class Item extends React.Component {
         }
     }
     star() {
-        var that = this;
-        setTimeout(function () {
-            that.props.star(that.props.text)
-        }, 200);
+        if (this.props.isStar === false){
+            this.props.star(this.props.text);
+        } else {
+            this.props.unstar(this.props.text)
+        }
     }
     handleErase() {
         this.props.erase(this.props.text);
@@ -137,6 +138,7 @@ class App extends React.Component {
         this.moveToChecked = this.moveToChecked.bind(this);
         this.moveBack = this.moveBack.bind(this);
         this.moveToTheTop = this.moveToTheTop.bind(this);
+        this.moveToTheBottom = this.moveToTheBottom.bind(this);
         this.delete = this.delete.bind(this);
         this.addDetailes = this.addDetailes.bind(this);
     }
@@ -205,6 +207,22 @@ class App extends React.Component {
             todo_list: temp_todo_list,
         });
     }
+    moveToTheBottom(item) {
+        console.log ("in the moveToTheBottom function");
+        var temp_todo_list = this.state.todo_list;
+        var item_to_move_bottom = null;
+        for (var i = 0; i < temp_todo_list.length; i++) {
+            if (item === temp_todo_list[i].text) {
+                item_to_move_bottom = temp_todo_list.splice(i, 1);
+                break;
+            }
+        }
+        item_to_move_bottom[0].isStar = false;
+        temp_todo_list.push(item_to_move_bottom[0]);
+        this.setState({
+            todo_list: temp_todo_list,
+        });
+    }
     delete(item) {
         var temp_todo_list = this.state.todo_list;
         var temp_items_checked = this.state.items_checked;
@@ -245,7 +263,7 @@ class App extends React.Component {
         LocalStorageUtility.storeItem("items_checked", this.state.items_checked);
     }
     render() {
-        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} star={this.moveToTheTop} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes}/>)
+        var todo_items = this.state.todo_list.map((item, i) => <Item key={i} type="todo_list" text={item.text} desc={item.desc} date={item.date} check={this.moveToChecked} star={this.moveToTheTop} unstar={this.moveToTheBottom} isStar={item.isStar} erase={this.delete} transferDetailes={this.addDetailes}/>)
         var checked_items = this.state.items_checked.map((item, i) => <Item key={i} type="items_checked" text={item.text} desc={item.desc} date={item.date} uncheck={this.moveBack} erase={this.delte} isChecked={true} />)
         return (
             <div>
