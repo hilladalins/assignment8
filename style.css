@@ -113,13 +113,37 @@ button{
 }
 .dropdown-menu{
     display: none;
-    background-color: rgb(121, 250, 186);
+    background-color: beige;
+    border: 1px solid black;
     position: absolute;
     left: 50%;
     z-index: 3;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 1.8vh;
 }
 .visible {
     display: block;
+}
+.desc-date-form{
+    display:flex;
+    flex-direction: column;
+}
+.form-desc{
+    height: 5.4vh;
+    padding-top: 0;
+}
+
+
+
+.form-desc:placeholder-shown{
+    position:relative;
+}
+.form-btn{
+    width: 30%;
+    font-size: 1.8vh;
+    align-self: flex-end;
+    border-radius: 5px;
 }
 
 /* Customize the label (the container) */

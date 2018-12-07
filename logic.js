@@ -112,12 +112,12 @@ class MenuDropdown extends React.Component {
         var visibility = this.state.isOpen ? "visible" : "";
         return (
             <div className={`dropdown-menu ${visibility}`}>
-                <form>
+                <form className="desc-date-form">
                     <span>Description:</span>
-                    <input placeholder="Type your description here" ref={(input) => { this.inputDesc = input }}></input><br/>
+                    <textarea rows="3" cols="30" ref={(input) => { this.inputDesc = input }} placeholder="Enter your description here"></textarea>
                     <span>Due date:</span>
                     <input type="date"  ref={(input) => { this.inputDate = input }}></input><br/>
-                    <input type="submit" value="Add" onClick={this.handleSubmit}/>
+                    <input className="form-btn" type="submit" value="Add" onClick={this.handleSubmit}/>
                 </form>
             </div>
         )
